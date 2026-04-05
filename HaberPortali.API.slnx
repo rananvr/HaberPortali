@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HaberPortali.API/HaberPortali.API.csproj" />
+  <Project Path="HaberPortali.UI/HaberPortali.UI.csproj" Id="19e1af2d-ca72-4b2e-8a0e-13fa97d0657c" />
+</Solution>

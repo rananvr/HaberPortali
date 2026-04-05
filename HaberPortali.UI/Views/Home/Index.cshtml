@@ -1,0 +1,148 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Haber Portalı - Yönetim</title>
+
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+        <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+        </head>
+
+        <body id="page-top">
+
+            <div id="wrapper">
+
+                <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+                        <div class="sidebar-brand-icon rotate-n-15">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="sidebar-brand-text mx-3">Haber Portalı</div>
+                    </a>
+                    <hr class="sidebar-divider my-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Ana Panel</span>
+                        </a>
+                    </li>
+                    <hr class="sidebar-divider">
+                    <div class="sidebar-heading">İşlemler</div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-fw fa-list"></i>
+                            <span>Kategoriler</span>
+                        </a>
+                    </li>
+                </ul>
+                <div id="content-wrapper" class="d-flex flex-column">
+
+                    <div id="content">
+
+                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                            <ul class="navbar-nav ml-auto">
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Yönetici</span>
+                                        <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                            <a class="dropdown-item" href="#" id="btnLogout">
+                                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                Çıkış Yap
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Hoş Geldiniz</h1>
+
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Token Testi ve Kategori Listesi</h6>
+                                        <button class="btn btn-sm btn-primary" id="btnGetCategories">
+                                            <i class="fas fa-download fa-sm text-white-50"></i> Kategorileri Getir
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group" id="categoryList">
+                                            <li class="list-group-item text-center text-muted">API'den veri çekmek için butona tıklayın...</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <footer class="sticky-footer bg-white">
+                            <div class="container my-auto">
+                                <div class="copyright text-center my-auto">
+                                    <span>Copyright &copy; Haber Portalı 2026</span>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+
+                <script src="~/vendor/jquery/jquery.min.js"></script>
+                <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+                <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+                <script src="~/js/sb-admin-2.min.js"></script>
+
+                <script>
+                        $(document).ready(function () {
+            
+                            var userToken = localStorage.getItem("token");
+                            if (!userToken) {
+                                window.location.href = "/Auth/Login";
+                                return;
+                            }
+
+                            $("#btnGetCategories").click(function () {
+                                $.ajax({
+                                    url: "https://localhost:7253/api/Categories", 
+                                    type: "GET",
+                                    headers: {
+                                        "Authorization": "Bearer " + userToken
+                                    },
+                                    success: function (data) {
+                                        $("#categoryList").empty();
+                        
+                                        if(data.length === 0){
+                                            $("#categoryList").append('<li class="list-group-item">Veri tabanında hiç kategori yok.</li>');
+                                            return;
+                                        }
+
+                                        $.each(data, function (index, item) {
+                                            $("#categoryList").append('<li class="list-group-item border-left-primary">' + item.name + '</li>');
+                                        });
+                                    },
+                                    error: function (xhr) {
+                                        if (xhr.status === 401) {
+                                            alert("Oturum süresi dolmuş! Lütfen tekrar giriş yapın.");
+                                            localStorage.removeItem("token");
+                                            window.location.href = "/Auth/Login";
+                                        } else {
+                                            alert("Veri çekilirken hata oluştu.");
+                                        }
+                                    }
+                                });
+                            });
+
+                            $("#btnLogout").click(function () {
+                                localStorage.removeItem("token");
+                                window.location.href = "/Auth/Login";
+                            });
+
+                        });
+                </script>
+            </body>
+        </html>
