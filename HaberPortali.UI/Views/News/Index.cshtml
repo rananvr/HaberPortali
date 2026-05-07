@@ -1,0 +1,401 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Haber Portalı - Haber Yönetimi</title>
+
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+        <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+        </head>
+
+        <body id="page-top">
+
+            <div id="wrapper">
+
+                <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/Dashboard/Index">
+                        <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-newspaper"></i></div>
+                        <div class="sidebar-brand-text mx-3">Haber Mozaik</div>
+                    </a>
+    
+                    <hr class="sidebar-divider my-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Dashboard/Index">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Ana Panel</span>
+                        </a>
+                    </li>
+
+                    <hr class="sidebar-divider">
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Index">
+                            <i class="fas fa-fw fa-list"></i>
+                            <span>Kategoriler</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/News/Index">
+                            <i class="fas fa-fw fa-file-alt"></i>
+                            <span>Haberler</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Comments/Index">
+                            <i class="fas fa-fw fa-comments"></i>
+                            <span>Yorumlar</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Users/Index">
+                            <i class="fas fa-fw fa-users"></i>
+                            <span>Kullanıcılar</span>
+                        </a>
+                    </li>
+
+                    <hr class="sidebar-divider d-none d-md-block">
+                </ul>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+
+                    <div id="content">
+
+                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                            <ul class="navbar-nav ml-auto">
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Yönetici</span>
+                                        <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                            <a class="dropdown-item" href="#" id="btnLogout">
+                                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Çıkış Yap
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Haber Yönetimi</h1>
+                    
+                                <div id="alertArea"></div>
+
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Haber Listesi</h6>
+                                        <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addNewsModal">
+                                            <i class="fas fa-plus fa-sm text-white-50"></i> Yeni Haber Ekle
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                            
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover align-middle" id="newsTable">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th width="100">Görsel</th>
+                                                        <th>Haber Başlığı</th>
+                                                        <th>Kategori</th>
+                                                        <th width="180">İşlemler</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr><td colspan="4" class="text-center text-muted">Yükleniyor...</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer class="sticky-footer bg-white">
+                            <div class="container my-auto">
+                                <div class="copyright text-center my-auto">
+                                    <span>Copyright &copy; Haber Portalı 2026</span>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addNewsModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">Yeni Haber Ekle</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Haber Başlığı</label>
+                                    <input type="text" id="newsTitle" class="form-control" placeholder="Haberin başlığını girin...">
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Haber İçeriği</label>
+                                    <textarea id="newsContent" class="form-control" rows="4" placeholder="Haberin detaylarını buraya yazın..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Kategori Seçin</label>
+                                    <select id="newsCategoryId" class="form-control">
+                                        <option value="">Seçiniz...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Haber Fotoğrafı</label>
+                                    <input type="file" id="newsImage" class="form-control-file" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                <button type="button" class="btn btn-success" id="btnSaveNews">Haberi Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="editNewsModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-dark">
+                                <h5 class="modal-title font-weight-bold">Haberi Düzenle</h5>
+                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="editNewsId">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Haber Başlığı</label>
+                                    <input type="text" id="editNewsTitle" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Haber İçeriği</label>
+                                    <textarea id="editNewsContent" class="form-control" rows="4"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Kategori Seçin</label>
+                                    <select id="editNewsCategoryId" class="form-control">
+                                        <option value="">Seçiniz...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Yeni Fotoğraf (Değiştirmek istemiyorsanız boş bırakın)</label>
+                                    <input type="file" id="editNewsImage" class="form-control-file" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                <button type="button" class="btn btn-warning font-weight-bold" id="btnUpdateNews">Değişiklikleri Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script src="~/vendor/jquery/jquery.min.js"></script>
+                <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+                <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+                <script src="~/js/sb-admin-2.min.js"></script>
+
+                <script>
+                        $(document).ready(function () {
+                            var userToken = localStorage.getItem("token");
+                            if (!userToken) { window.location.href = "/Auth/Login"; return; }
+
+                            var apiNewsUrl = "https://localhost:7253/api/News";
+                            var apiCategoriesUrl = "https://localhost:7253/api/Categories";
+
+                            function showMessage(message, type) {
+                                var alertHtml = `<div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+                                                    <strong>Bilgi:</strong> ${message}
+                                                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                                 </div>`;
+                                $("#alertArea").html(alertHtml);
+                                setTimeout(function () { $(".alert").alert('close'); }, 3000);
+                            }
+
+                            // Kategorileri Çek ve İki Dropdown'a da Ekle
+                            function loadCategoriesForDropdown() {
+                                $.ajax({
+                                    url: apiCategoriesUrl,
+                                    type: "GET",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    success: function (data) {
+                                        var selectAdd = $("#newsCategoryId");
+                                        var selectEdit = $("#editNewsCategoryId");
+                                        selectAdd.empty().append('<option value="">Seçiniz...</option>');
+                                        selectEdit.empty().append('<option value="">Seçiniz...</option>');
+                        
+                                        $.each(data, function (index, item) {
+                                            selectAdd.append('<option value="' + item.id + '">' + item.name + '</option>');
+                                            selectEdit.append('<option value="' + item.id + '">' + item.name + '</option>');
+                                        });
+                                    }
+                                });
+                            }
+
+                            // Haberleri Tabloya Doldur
+                            function loadNews() {
+                                $.ajax({
+                                    url: apiNewsUrl,
+                                    type: "GET",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    success: function (data) {
+                                        var tbody = $("#newsTable tbody");
+                                        tbody.empty();
+                        
+                                        if (data.length === 0) {
+                                            tbody.append('<tr><td colspan="4" class="text-center">Henüz eklenmiş bir haber yok.</td></tr>');
+                                            return;
+                                        }
+
+                                        $.each(data, function (index, item) {
+                                            var categoryName = item.category ? item.category.name : '<span class="text-danger">Kategorisiz</span>';
+                            
+                                            // Fotoğraf var mı kontrol et, varsa API portuyla beraber linkini oluştur
+                                            var imgUrl = item.imageUrl ? "https://localhost:7253" + item.imageUrl : "";
+                                            var imgTag = imgUrl ? `<img src="${imgUrl}" style="width: 80px; height: 50px; object-fit: cover; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">` : '<span class="text-muted small">Görsel Yok</span>';
+
+                                            var tr = `
+                                                <tr>
+                                                    <td class="text-center">${imgTag}</td>
+                                                    <td class="font-weight-bold text-dark">${item.title}</td>
+                                                    <td><span class="badge badge-primary">${categoryName}</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-warning btn-edit-news"
+                                                            data-id="${item.id}"
+                                                            data-title="${item.title}"
+                                                            data-content="${item.content}"
+                                                            data-categoryid="${item.categoryId}">
+                                                            <i class="fas fa-edit"></i> Düzenle
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger btn-delete-news ml-1" data-id="${item.id}">
+                                                            <i class="fas fa-trash"></i> Sil
+                                                        </button>
+                                                    </td>
+                                                </tr>`;
+                                            tbody.append(tr);
+                                        });
+                                    }
+                                });
+                            }
+
+                            // Yeni Haber Ekle
+                            $("#btnSaveNews").click(function () {
+                                var title = $("#newsTitle").val();
+                                var content = $("#newsContent").val();
+                                var categoryId = $("#newsCategoryId").val();
+                                var imageFile = $("#newsImage")[0].files[0];
+
+                                if (!title || !content || !categoryId) {
+                                    alert("Lütfen başlık, içerik ve kategori alanlarını doldurun!");
+                                    return;
+                                }
+
+                                var formData = new FormData();
+                                formData.append("title", title);
+                                formData.append("content", content);
+                                formData.append("categoryId", categoryId);
+                                if (imageFile) formData.append("image", imageFile);
+
+                                $.ajax({
+                                    url: apiNewsUrl,
+                                    type: "POST",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function () {
+                                        showMessage("Haber ve fotoğraf başarıyla eklendi!", "success");
+                                        $("#addNewsModal").modal('hide');
+                                        $("#newsTitle, #newsContent, #newsCategoryId, #newsImage").val("");
+                                        loadNews();
+                                    },
+                                    error: function () { showMessage("Haber eklenirken hata oluştu.", "danger"); }
+                                });
+                            });
+
+                            // Haberi Düzenle (Modalı Aç ve Doldur)
+                            $(document).on("click", ".btn-edit-news", function () {
+                                $("#editNewsId").val($(this).data("id"));
+                                $("#editNewsTitle").val($(this).data("title"));
+                                $("#editNewsContent").val($(this).data("content"));
+                                $("#editNewsCategoryId").val($(this).data("categoryid"));
+                                $("#editNewsImage").val(""); // Eski dosya seçimini temizle
+                                $("#editNewsModal").modal("show");
+                            });
+
+                            // Haberi Güncelle (PUT)
+                            $("#btnUpdateNews").click(function () {
+                                var id = $("#editNewsId").val();
+                                var title = $("#editNewsTitle").val();
+                                var content = $("#editNewsContent").val();
+                                var categoryId = $("#editNewsCategoryId").val();
+                                var imageFile = $("#editNewsImage")[0].files[0];
+
+                                if (!title || !content || !categoryId) {
+                                    alert("Lütfen gerekli alanları doldurun!");
+                                    return;
+                                }
+
+                                var formData = new FormData();
+                                formData.append("title", title);
+                                formData.append("content", content);
+                                formData.append("categoryId", categoryId);
+                                if (imageFile) formData.append("image", imageFile);
+
+                                $.ajax({
+                                    url: apiNewsUrl + "/" + id,
+                                    type: "PUT",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function () {
+                                        showMessage("Haber başarıyla güncellendi!", "success");
+                                        $("#editNewsModal").modal('hide');
+                                        loadNews();
+                                    },
+                                    error: function () { showMessage("Haber güncellenirken hata oluştu.", "danger"); }
+                                });
+                            });
+
+                            // Haberi Sil
+                            $(document).on("click", ".btn-delete-news", function () {
+                                var id = $(this).data("id");
+                                if (confirm("Bu haberi silmek istediğinize emin misiniz?")) {
+                                    $.ajax({
+                                        url: apiNewsUrl + "/" + id,
+                                        type: "DELETE",
+                                        headers: { "Authorization": "Bearer " + userToken },
+                                        success: function () {
+                                            showMessage("Haber silindi!", "success");
+                                            loadNews();
+                                        }
+                                    });
+                                }
+                            });
+
+                            // Çıkış Yap
+                            $("#btnLogout").click(function () {
+                                localStorage.removeItem("token");
+                                window.location.href = "/Auth/Login";
+                            });
+
+                            // Sayfa başlarken çalıştır
+                            loadCategoriesForDropdown();
+                            loadNews();
+                        });
+                </script>
+            </body>
+        </html>

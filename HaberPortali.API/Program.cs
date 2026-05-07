@@ -33,10 +33,13 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 
 
 // Repository 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
-
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<HaberPortali.API.Mapping.MapProfile>();
+});
 
 // JWT Yetkilendirme Ayarları
 builder.Services.AddAuthentication(options =>
@@ -57,7 +60,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
 // CORS İznini Ekliyoruz
 builder.Services.AddCors(options =>
 {
@@ -106,7 +112,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles(); // Fotoğrafların dışarıdan okunabilmesine izin ver
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

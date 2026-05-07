@@ -12,7 +12,6 @@
 
     <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
         <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
         </head>
 
@@ -21,28 +20,53 @@
             <div id="wrapper">
 
                 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
-                        <div class="sidebar-brand-icon rotate-n-15">
-                            <i class="fas fa-newspaper"></i>
-                        </div>
-                        <div class="sidebar-brand-text mx-3">Haber Portalı</div>
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/Dashboard/Index">
+                        <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-newspaper"></i></div>
+                        <div class="sidebar-brand-text mx-3">Haber Mozaik</div>
                     </a>
+    
                     <hr class="sidebar-divider my-0">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Dashboard/Index">
                             <i class="fas fa-fw fa-tachometer-alt"></i>
                             <span>Ana Panel</span>
                         </a>
                     </li>
+
                     <hr class="sidebar-divider">
-                    <div class="sidebar-heading">İşlemler</div>
+    
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="/Home/Index">
                             <i class="fas fa-fw fa-list"></i>
                             <span>Kategoriler</span>
                         </a>
                     </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/News/Index">
+                            <i class="fas fa-fw fa-file-alt"></i>
+                            <span>Haberler</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Comments/Index">
+                            <i class="fas fa-fw fa-comments"></i>
+                            <span>Yorumlar</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Users/Index">
+                            <i class="fas fa-fw fa-users"></i>
+                            <span>Kullanıcılar</span>
+                        </a>
+                    </li>
+
+                    <hr class="sidebar-divider d-none d-md-block">
                 </ul>
+
                 <div id="content-wrapper" class="d-flex flex-column">
 
                     <div id="content">
@@ -63,25 +87,39 @@
                                     </li>
                                 </ul>
                             </nav>
+
                             <div class="container-fluid">
-                                <h1 class="h3 mb-4 text-gray-800">Hoş Geldiniz</h1>
+                                <h1 class="h3 mb-4 text-gray-800">Kategori Yönetimi</h1>
+
+                                <div id="alertArea"></div>
 
                                 <div class="card shadow mb-4">
                                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                        <h6 class="m-0 font-weight-bold text-primary">Token Testi ve Kategori Listesi</h6>
+                                        <h6 class="m-0 font-weight-bold text-primary">Kategori Listesi ve İşlemler</h6>
                                         <button class="btn btn-sm btn-primary" id="btnGetCategories">
-                                            <i class="fas fa-download fa-sm text-white-50"></i> Kategorileri Getir
+                                            <i class="fas fa-sync-alt fa-sm text-white-50"></i> Listeyi Yenile
                                         </button>
                                     </div>
                                     <div class="card-body">
+                            
+                                        <div class="input-group mb-4">
+                                            <input type="text" id="newCategoryName" class="form-control" placeholder="Yeni kategori adını yazın...">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-success" type="button" id="btnAddCategory">
+                                                    <i class="fas fa-plus"></i> Kategori Ekle
+                                                </button>
+                                            </div>
+                                        </div>
+
                                         <ul class="list-group" id="categoryList">
-                                            <li class="list-group-item text-center text-muted">API'den veri çekmek için butona tıklayın...</li>
+                                            <li class="list-group-item text-center text-muted">Yükleniyor...</li>
                                         </ul>
+
                                     </div>
                                 </div>
                             </div>
-
                         </div>
+
                         <footer class="sticky-footer bg-white">
                             <div class="container my-auto">
                                 <div class="copyright text-center my-auto">
@@ -89,6 +127,31 @@
                                 </div>
                             </div>
                         </footer>
+
+                    </div>
+                </div>
+
+                <div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Kategoriyi Düzenle</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="editCategoryId">
+                                <div class="form-group">
+                                    <label>Kategori Adı</label>
+                                    <input type="text" id="editCategoryName" class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                <button type="button" class="btn btn-primary" id="btnSaveUpdate">Değişiklikleri Kaydet</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -106,42 +169,145 @@
                                 return;
                             }
 
+                            var apiUrl = "https://localhost:7253/api/Categories"; // KENDİ PORTUNA GÖRE DÜZENLEMEYİ UNUTMA!
+
+                            // Ekranda şık uyarı gösterme fonksiyonu
+                            function showMessage(message, type) {
+                                var alertHtml = `
+                                    <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+                                        <strong>Bilgi:</strong> ${message}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>`;
+                                $("#alertArea").html(alertHtml);
+                                setTimeout(function () { $(".alert").alert('close'); }, 3000);
+                            }
+
+                            // 1. KATEGORİLERİ LİSTELE (GET)
                             $("#btnGetCategories").click(function () {
                                 $.ajax({
-                                    url: "https://localhost:7253/api/Categories", 
+                                    url: apiUrl,
                                     type: "GET",
-                                    headers: {
-                                        "Authorization": "Bearer " + userToken
-                                    },
+                                    headers: { "Authorization": "Bearer " + userToken },
                                     success: function (data) {
                                         $("#categoryList").empty();
-                        
-                                        if(data.length === 0){
+                                        if (data.length === 0) {
                                             $("#categoryList").append('<li class="list-group-item">Veri tabanında hiç kategori yok.</li>');
                                             return;
                                         }
-
+                        
                                         $.each(data, function (index, item) {
-                                            $("#categoryList").append('<li class="list-group-item border-left-primary">' + item.name + '</li>');
+                                            var li = `
+                                                <li class="list-group-item d-flex justify-content-between align-items-center border-left-primary">
+                                                    <span class="font-weight-bold">${item.name}</span>
+                                                    <div>
+                                                        <button class="btn btn-sm btn-warning btn-edit" data-id="${item.id}" data-name="${item.name}">
+                                                            <i class="fas fa-edit"></i> Düzenle
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger btn-delete ml-2" data-id="${item.id}">
+                                                            <i class="fas fa-trash"></i> Sil
+                                                        </button>
+                                                    </div>
+                                                </li>`;
+                                            $("#categoryList").append(li);
                                         });
                                     },
-                                    error: function (xhr) {
-                                        if (xhr.status === 401) {
-                                            alert("Oturum süresi dolmuş! Lütfen tekrar giriş yapın.");
-                                            localStorage.removeItem("token");
-                                            window.location.href = "/Auth/Login";
-                                        } else {
-                                            alert("Veri çekilirken hata oluştu.");
-                                        }
+                                    error: function () {
+                                        showMessage("Veriler çekilirken bir hata oluştu.", "danger");
                                     }
                                 });
                             });
 
+                            // 2. YENİ KATEGORİ EKLE (POST)
+                            $("#btnAddCategory").click(function () {
+                                var categoryName = $("#newCategoryName").val();
+                                if (categoryName.trim() === "") {
+                                    showMessage("Lütfen bir kategori adı giriniz!", "warning");
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: apiUrl,
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    data: JSON.stringify({ Name: categoryName }),
+                                    success: function () {
+                                        showMessage("Kategori başarıyla eklendi!", "success");
+                                        $("#newCategoryName").val("");
+                                        $("#btnGetCategories").click(); // Listeyi güncelle
+                                    },
+                                    error: function () {
+                                        showMessage("Kategori eklenirken bir hata oluştu.", "danger");
+                                    }
+                                });
+                            });
+
+                            // 3. KATEGORİ SİL (DELETE)
+                            $(document).on("click", ".btn-delete", function () {
+                                var id = $(this).data("id");
+                
+                                if (confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) {
+                                    $.ajax({
+                                        url: apiUrl + "/" + id,
+                                        type: "DELETE",
+                                        headers: { "Authorization": "Bearer " + userToken },
+                                        success: function () {
+                                            showMessage("Kategori başarıyla silindi!", "success");
+                                            $("#btnGetCategories").click(); // Listeyi güncelle
+                                        },
+                                        error: function () {
+                                            showMessage("Silme işlemi başarısız oldu.", "danger");
+                                        }
+                                    });
+                                }
+                            });
+
+                            // 4. DÜZENLEME PENCERESİNİ AÇ
+                            $(document).on("click", ".btn-edit", function () {
+                                var id = $(this).data("id");
+                                var name = $(this).data("name");
+                
+                                $("#editCategoryId").val(id);
+                                $("#editCategoryName").val(name);
+                                $("#editCategoryModal").modal("show");
+                            });
+
+                            // 5. DEĞİŞİKLİKLERİ KAYDET (PUT)
+                            $("#btnSaveUpdate").click(function () {
+                                var id = $("#editCategoryId").val();
+                                var newName = $("#editCategoryName").val();
+
+                                if (newName.trim() === "") {
+                                    alert("Kategori adı boş olamaz!");
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: apiUrl + "/" + id,
+                                    type: "PUT",
+                                    contentType: "application/json",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    data: JSON.stringify({ Id: parseInt(id), Name: newName }),
+                                    success: function () {
+                                        $("#editCategoryModal").modal("hide"); // Modalı kapat
+                                        showMessage("Kategori başarıyla güncellendi!", "success");
+                                        $("#btnGetCategories").click(); // Listeyi güncelle
+                                    },
+                                    error: function () {
+                                        showMessage("Güncelleme sırasında bir hata oluştu.", "danger");
+                                    }
+                                });
+                            });
+
+                            // Çıkış Yap
                             $("#btnLogout").click(function () {
                                 localStorage.removeItem("token");
                                 window.location.href = "/Auth/Login";
                             });
 
+                            $("#btnGetCategories").click();
                         });
                 </script>
             </body>

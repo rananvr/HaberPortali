@@ -9,14 +9,14 @@ namespace HaberPortali.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly IGenericRepository<Category> _categoryRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoriesController(IGenericRepository<Category> categoryRepository)
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
             _categoryRepository = categoryRepository;
         }
 
-      
+
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -35,7 +35,7 @@ namespace HaberPortali.API.Controllers
 
         //admin
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
             await _categoryRepository.AddAsync(category);
@@ -45,7 +45,7 @@ namespace HaberPortali.API.Controllers
 
         //admin
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
             if (id != category.Id) return BadRequest();
@@ -57,7 +57,7 @@ namespace HaberPortali.API.Controllers
 
         //admin
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);

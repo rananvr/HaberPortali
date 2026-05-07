@@ -1,0 +1,231 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Haber Mozaik - Kullanıcı Yönetimi</title>
+
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+        <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+        </head>
+
+        <body id="page-top">
+
+            <div id="wrapper">
+
+                <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/Dashboard/Index">
+                        <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-newspaper"></i></div>
+                        <div class="sidebar-brand-text mx-3">Haber Mozaik</div>
+                    </a>
+    
+                    <hr class="sidebar-divider my-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Dashboard/Index">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Ana Panel</span>
+                        </a>
+                    </li>
+
+                    <hr class="sidebar-divider">
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Index">
+                            <i class="fas fa-fw fa-list"></i>
+                            <span>Kategoriler</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/News/Index">
+                            <i class="fas fa-fw fa-file-alt"></i>
+                            <span>Haberler</span>
+                        </a>
+                    </li>
+    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Comments/Index">
+                            <i class="fas fa-fw fa-comments"></i>
+                            <span>Yorumlar</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Users/Index">
+                            <i class="fas fa-fw fa-users"></i>
+                            <span>Kullanıcılar</span>
+                        </a>
+                    </li>
+
+                    <hr class="sidebar-divider d-none d-md-block">
+                </ul>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+
+                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                            <ul class="navbar-nav ml-auto">
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Yönetici</span>
+                                        <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                            <a class="dropdown-item" href="#" id="btnLogout">
+                                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Çıkış Yap
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Kullanıcı Yönetimi</h1>
+                    
+                                <div id="alertArea"></div>
+
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Kayıtlı Kullanıcı Listesi</h6>
+                                        <button class="btn btn-sm btn-primary" id="btnRefreshUsers">
+                                            <i class="fas fa-sync-alt fa-sm text-white-50"></i> Listeyi Yenile
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                            
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover align-middle" id="usersTable">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Kullanıcı Adı</th>
+                                                        <th>E-Posta Adresi</th>
+                                                        <th>Kayıt Tarihi</th>
+                                                        <th width="120" class="text-center">Durum</th>
+                                                        <th width="180">İşlemler</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr><td colspan="5" class="text-center text-muted">Yükleniyor...</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer class="sticky-footer bg-white">
+                            <div class="container my-auto">
+                                <div class="copyright text-center my-auto">
+                                    <span>Copyright &copy; Haber Mozaik 2026</span>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+
+                <script src="~/vendor/jquery/jquery.min.js"></script>
+                <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+                <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+                <script src="~/js/sb-admin-2.min.js"></script>
+
+                <script>
+                        $(document).ready(function () {
+                            var userToken = localStorage.getItem("token");
+                            if (!userToken) { window.location.href = "/Auth/Login"; return; }
+
+                            // DİKKAT: PORTUNU KENDİ PROJENE GÖRE GÜNCELLE!
+                            var apiUsersUrl = "https://localhost:7253/api/Users";
+
+                            function showMessage(message, type) {
+                                var alertHtml = `<div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+                                                    <strong>Bilgi:</strong> ${message}
+                                                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                                 </div>`;
+                                $("#alertArea").html(alertHtml);
+                                setTimeout(function () { $(".alert").alert('close'); }, 3000);
+                            }
+
+                            // 1. Kullanıcıları Tabloya Doldur
+                            function loadUsers() {
+                                $.ajax({
+                                    url: apiUsersUrl,
+                                    type: "GET",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    success: function (data) {
+                                        var tbody = $("#usersTable tbody");
+                                        tbody.empty();
+                        
+                                        if (data.length === 0) {
+                                            tbody.append('<tr><td colspan="5" class="text-center">Sistemde henüz kullanıcı yok.</td></tr>');
+                                            return;
+                                        }
+
+                                        $.each(data, function (index, item) {
+                                            // Tarihi güzel bir formata çeviriyoruz
+                                            var date = new Date(item.createdAt).toLocaleDateString("tr-TR");
+                            
+                                            // Duruma göre Rozet ve Buton
+                                            var statusBadge = item.isActive
+                                                ? '<span class="badge badge-success">Aktif</span>'
+                                                : '<span class="badge badge-danger">Banlı</span>';
+                                
+                                            var toggleBtnClass = item.isActive ? "btn-danger" : "btn-success";
+                                            var toggleBtnIcon = item.isActive ? "fa-ban" : "fa-check-circle";
+                                            var toggleBtnText = item.isActive ? "Hesabı Engelle" : "Engeli Kaldır";
+
+                                            var tr = `
+                                                <tr>
+                                                    <td class="font-weight-bold text-dark"><i class="fas fa-user-circle text-gray-400 mr-2"></i>${item.userName}</td>
+                                                    <td>${item.email}</td>
+                                                    <td>${date}</td>
+                                                    <td class="text-center">${statusBadge}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm ${toggleBtnClass} btn-toggle-user" data-id="${item.id}">
+                                                            <i class="fas ${toggleBtnIcon}"></i> ${toggleBtnText}
+                                                        </button>
+                                                    </td>
+                                                </tr>`;
+                                            tbody.append(tr);
+                                        });
+                                    }
+                                });
+                            }
+
+                            // 2. Kullanıcıyı Engelle / Kaldır (Toggle)
+                            $(document).on("click", ".btn-toggle-user", function () {
+                                var id = $(this).data("id");
+                
+                                $.ajax({
+                                    url: apiUsersUrl + "/toggle-status/" + id,
+                                    type: "PUT",
+                                    headers: { "Authorization": "Bearer " + userToken },
+                                    success: function (response) {
+                                        showMessage(response.message, "success");
+                                        loadUsers(); // Tabloyu yenile
+                                    },
+                                    error: function () {
+                                        showMessage("İşlem sırasında bir hata oluştu.", "danger");
+                                    }
+                                });
+                            });
+
+                            $("#btnRefreshUsers").click(function() { loadUsers(); });
+
+                            $("#btnLogout").click(function () {
+                                localStorage.removeItem("token");
+                                window.location.href = "/Auth/Login";
+                            });
+
+                            loadUsers();
+                        });
+                </script>
+            </body>
+        </html>

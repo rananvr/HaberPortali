@@ -1,0 +1,12 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace HaberPortali.UI.Controllers
+{
+    public class CommentsController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}
