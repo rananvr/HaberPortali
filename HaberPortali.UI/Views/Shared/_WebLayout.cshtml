@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewData["Title"] - Haber Mozaik</title>
+    
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; background-color: #f8f9fc; color: #333; margin: 0; padding: 0;}
+        
+        .top-ticker { 
+            font-size: 0.75rem; 
+            border-bottom: 1px solid #eaecf4; 
+            padding: 8px 15px; 
+            font-weight: 800; 
+            background: #fff;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .ticker-items span { margin-right: 20px; }
+        .ticker-up { color: #1cc88a; } 
+        .login-link { color: #4e73df; font-weight: 900; text-decoration: none; font-size: 0.85rem;}
+        .login-link:hover { color: #224abe; text-decoration: underline; }
+
+        .logo-area { text-align: center; padding: 25px 0; background: #fff; }
+        .site-logo { 
+            background-color: #4e73df; 
+            color: #ffffff !important; 
+            font-weight: 900; 
+            font-size: 1.8rem; 
+            padding: 5px 15px; 
+            text-decoration: none !important; 
+            display: inline-block; 
+            border-radius: 3px; 
+        }
+
+        .main-nav { background: #fff; border-bottom: 1px solid #eaecf4; box-shadow: 0 4px 6px -6px #222; }
+        .main-nav ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; }
+        .main-nav li { margin: 0; padding: 0; }
+        .main-nav .nav-link { color: #000 !important; font-weight: 900; font-size: 0.95rem; padding: 12px 18px; display: block; text-decoration: none; transition: color 0.2s; }
+        .main-nav .nav-link:hover { color: #4e73df !important; }
+
+        .main-content { min-height: 80vh; padding-top: 25px; padding-bottom: 50px; background: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="top-ticker">
+        <div class="ticker-items d-none d-md-block">
+            <span class="ticker-up"><i class="fas fa-arrow-up"></i> BIST 100 15.040,25</span>
+            <span class="ticker-up"><i class="fas fa-arrow-up"></i> DOLAR 45,24</span>
+            <span class="ticker-up"><i class="fas fa-arrow-up"></i> EURO 53,29</span>
+            <span class="text-gray-600 ml-4"><i class="fas fa-sun text-warning"></i> Antalya 24° Güneşli</span>
+        </div>
+        <div id="authSection">
+            <a href="/Auth/Login" class="login-link"><i class="fas fa-user-circle mr-1"></i> KULLANICI GİRİŞİ</a>
+        </div>
+        </div>
+ 
+
+    <div class="logo-area">
+        <a class="site-logo" href="/Web/Index">HABER MOZAİK</a>
+    </div>
+
+    <div class="main-nav">
+        <ul id="publicCategoryMenu">
+            <li><a class="nav-link" href="/Web/Index">ANASAYFA</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content container-fluid" style="max-width: 1150px;">
+        @RenderBody()
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            var token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    var base64Url = token.split('.')[1];
+                    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    var payload = JSON.parse(jsonPayload);
+                    
+                    var username = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload.unique_name || payload.name || "Okur";
+
+                   var loggedInHtml = `
+    <a href="/Web/Profile" class="text-dark font-weight-bold mr-3" style="text-decoration:none; font-size:0.85rem;">
+        <i class="fas fa-user text-primary mr-1"></i> Merhaba, ${username}
+    </a>
+    <a href="#" id="btnLogoutWeb" class="text-danger font-weight-bold" style="text-decoration:none; font-size:0.85rem;">
+        <i class="fas fa-sign-out-alt mr-1"></i> Çıkış
+    </a>
+`;
+$("#authSection").html(loggedInHtml);
+
+                    $("#btnLogoutWeb").click(function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem("token");
+                        window.location.reload(); 
+                    });
+
+                } catch (e) {
+                    console.error("Oturum okunamadı.", e);
+                    localStorage.removeItem("token");
+                }
+            }
+        });
+    </script>
+
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

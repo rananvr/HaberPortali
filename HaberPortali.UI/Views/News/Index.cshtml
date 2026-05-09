@@ -224,7 +224,6 @@
                                 setTimeout(function () { $(".alert").alert('close'); }, 3000);
                             }
 
-                            // Kategorileri Çek ve İki Dropdown'a da Ekle
                             function loadCategoriesForDropdown() {
                                 $.ajax({
                                     url: apiCategoriesUrl,
@@ -244,7 +243,6 @@
                                 });
                             }
 
-                            // Haberleri Tabloya Doldur
                             function loadNews() {
                                 $.ajax({
                                     url: apiNewsUrl,
@@ -262,7 +260,6 @@
                                         $.each(data, function (index, item) {
                                             var categoryName = item.category ? item.category.name : '<span class="text-danger">Kategorisiz</span>';
                             
-                                            // Fotoğraf var mı kontrol et, varsa API portuyla beraber linkini oluştur
                                             var imgUrl = item.imageUrl ? "https://localhost:7253" + item.imageUrl : "";
                                             var imgTag = imgUrl ? `<img src="${imgUrl}" style="width: 80px; height: 50px; object-fit: cover; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">` : '<span class="text-muted small">Görsel Yok</span>';
 

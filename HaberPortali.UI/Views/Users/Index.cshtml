@@ -141,7 +141,6 @@
                             var userToken = localStorage.getItem("token");
                             if (!userToken) { window.location.href = "/Auth/Login"; return; }
 
-                            // DİKKAT: PORTUNU KENDİ PROJENE GÖRE GÜNCELLE!
                             var apiUsersUrl = "https://localhost:7253/api/Users";
 
                             function showMessage(message, type) {
@@ -169,10 +168,8 @@
                                         }
 
                                         $.each(data, function (index, item) {
-                                            // Tarihi güzel bir formata çeviriyoruz
                                             var date = new Date(item.createdAt).toLocaleDateString("tr-TR");
                             
-                                            // Duruma göre Rozet ve Buton
                                             var statusBadge = item.isActive
                                                 ? '<span class="badge badge-success">Aktif</span>'
                                                 : '<span class="badge badge-danger">Banlı</span>';
@@ -209,7 +206,7 @@
                                     headers: { "Authorization": "Bearer " + userToken },
                                     success: function (response) {
                                         showMessage(response.message, "success");
-                                        loadUsers(); // Tabloyu yenile
+                                        loadUsers(); 
                                     },
                                     error: function () {
                                         showMessage("İşlem sırasında bir hata oluştu.", "danger");

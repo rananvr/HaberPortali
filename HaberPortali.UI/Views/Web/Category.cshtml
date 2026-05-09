@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Views/Shared/_WebLayout.cshtml";
+    ViewData["Title"] = "Kategori Haberleri";
+}
+
+<style>
+    .section-title { font-weight: 900; font-size: 1.8rem; color: #4e73df; text-transform: uppercase; margin-bottom: 5px; letter-spacing: -0.5px;}
+    .title-border { border-bottom: 2px solid #eaecf4; margin-bottom: 40px; margin-top: 20px; text-align: center; padding-bottom: 15px;}
+
+    .custom-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; width: 100%; }
+    .ht-card { position: relative; height: 250px; overflow: hidden; display: block; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .ht-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .ht-card:hover img { transform: scale(1.08); }
+    .ht-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 70%, transparent 100%); padding: 25px 20px 15px 20px; text-align: center; }
+    .ht-title { color: #f6c23e; font-weight: 800; font-size: 1.15rem; line-height: 1.3; margin: 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
+    .ht-title span { color: #fff; }
+
+    @@media (max-width: 992px) { .custom-news-grid { grid-template-columns: repeat(2, 1fr); } }
+    @@media (max-width: 768px) { .custom-news-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="row mx-0">
+    <div class="col-12 px-0">
+        <div class="title-border">
+            <h1 class="section-title" id="catPageTitle">Yükleniyor...</h1>
+        </div>
+    </div>
+</div>
+
+<div class="custom-news-grid" id="catNewsGrid">
+    <div class="col-12 text-center w-100" id="loadingArea">
+        <div class="spinner-border text-primary"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            
+            var targetCategoryId = @ViewBag.CategoryId;
+            var apiNewsUrl = "https://localhost:7253/api/News";
+            var apiCategoriesUrl = "https://localhost:7253/api/Categories/" + targetCategoryId;
+
+            $.ajax({
+                url: "https://localhost:7253/api/Categories",
+                type: "GET",
+                success: function (data) {
+                    var menu = $("#publicCategoryMenu");
+                    $.each(data, function (index, item) {
+                        menu.append(`<li><a class="nav-link" href="/Web/Category/${item.id}">${item.name}</a></li>`);
+                    });
+                }
+            });
+
+            $.ajax({
+                url: apiCategoriesUrl,
+                type: "GET",
+                success: function (category) {
+                    $("#catPageTitle").text(category.name + " HABERLERİ");
+                    document.title = category.name + " - Haber Mozaik";
+                }
+            });
+
+            $.ajax({
+                url: apiNewsUrl,
+                type: "GET",
+                success: function (data) {
+                    var grid = $("#catNewsGrid");
+                    $("#loadingArea").remove();
+
+                    var filteredNews = data.filter(n => n.categoryId === targetCategoryId);
+
+                    if (filteredNews.length === 0) {
+                        grid.css("display", "block"); 
+                        grid.html('<div class="alert alert-info text-center w-100 py-5">Bu kategoride henüz haber bulunmuyor.</div>');
+                        return;
+                    }
+
+                    $.each(filteredNews, function (index, item) {
+                        var imgUrl = item.imageUrl ? "https://localhost:7253" + item.imageUrl : "https://dummyimage.com/800x600/4e73df/fff.png&text=Gorsel";
+                        var words = item.title.split(" ");
+                        var firstHalf = words.slice(0, Math.ceil(words.length / 2)).join(" ");
+                        var secondHalf = words.slice(Math.ceil(words.length / 2)).join(" ");
+
+                        var cardHtml = `
+                            <a href="/Web/Detail/${item.id}" class="ht-card text-decoration-none">
+                                <img src="${imgUrl}" alt="">
+                                <div class="ht-overlay">
+                                    <p class="ht-title">${firstHalf} <span>${secondHalf}</span></p>
+                                </div>
+                            </a>
+                        `;
+                        grid.append(cardHtml);
+                    });
+                }
+            });
+
+        });
+    </script>
+}

@@ -8,22 +8,19 @@ namespace HaberPortali.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Sadece yetkililer görebilir
+    [Authorize] 
     public class UsersController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
 
-        // Identity'nin kendi kullanıcı yöneticisini (UserManager) içeri alıyoruz
         public UsersController(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
         }
 
-        // 1. Tüm Kullanıcıları Listele
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            // Şifre gibi gizli bilgileri göndermemek için sadece gerekenleri seçiyoruz (Select)
             var users = await _userManager.Users
                 .Select(u => new {
                     u.Id,
@@ -38,14 +35,13 @@ namespace HaberPortali.API.Controllers
             return Ok(users);
         }
 
-        // 2. Kullanıcıyı Engelle veya Engelini Kaldır (Aktif/Pasif)
+        // Kullanıcıyı engelle
         [HttpPut("toggle-status/{id}")]
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return NotFound(new { message = "Kullanıcı bulunamadı!" });
 
-            // Durumu tersine çevir
             user.IsActive = !user.IsActive;
             await _userManager.UpdateAsync(user);
 

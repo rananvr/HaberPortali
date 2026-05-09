@@ -6,7 +6,7 @@ namespace HaberPortali.API.Repositories
 {
     public class CommentRepository : ICommentRepository
     {
-        private readonly ApplicationDbContext _context; // Kendi DbContext ismin farklıysa burayı değiştir
+        private readonly ApplicationDbContext _context;
 
         public CommentRepository(ApplicationDbContext context)
         {
@@ -15,11 +15,10 @@ namespace HaberPortali.API.Repositories
 
         public async Task<IEnumerable<Comment>> GetAllCommentsWithDetailsAsync()
         {
-            // Yorumları çekerken Haberi ve Kullanıcıyı da dahil ediyoruz (.Include)
             return await _context.Comments
                 .Include(c => c.News)
                 .Include(c => c.User)
-                .OrderByDescending(c => c.CreatedAt) // En yeni yorum en üstte çıksın
+                .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
 
@@ -27,6 +26,12 @@ namespace HaberPortali.API.Repositories
         {
             return await _context.Comments.FindAsync(id);
         }
+
+        public async Task AddAsync(Comment comment)
+        {
+            await _context.Comments.AddAsync(comment);
+        }
+        
 
         public void Update(Comment comment)
         {

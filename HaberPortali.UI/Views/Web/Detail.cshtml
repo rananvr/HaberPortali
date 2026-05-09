@@ -1,0 +1,327 @@
+﻿@{
+    Layout = "~/Views/Shared/_WebLayout.cshtml";
+    ViewData["Title"] = "Haber Detayı";
+}
+
+<style>
+    .article-header { text-align: center; margin-bottom: 40px; margin-top: 20px; }
+    .article-category { font-weight: 800; color: #4e73df; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; margin-bottom: 15px; display: inline-block; }
+    .article-title { font-weight: 900; font-size: 3rem; color: #111; line-height: 1.2; margin-bottom: 20px; letter-spacing: -1px; }
+    .article-meta { color: #858796; font-size: 0.9rem; border-top: 1px solid #eaecf4; border-bottom: 1px solid #eaecf4; padding: 15px 0; display: flex; justify-content: center; gap: 30px; }
+    
+    .article-image-wrapper { width: 100%; height: 500px; margin-bottom: 40px; border-radius: 5px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .article-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .article-content { font-size: 1.2rem; line-height: 1.8; color: #333; font-family: 'Georgia', serif; } 
+    
+    .article-actions { margin-top: 50px; padding-top: 20px; border-top: 2px solid #eaecf4; display: flex; gap: 15px; }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <div id="loadingArea" class="text-center my-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-3 text-muted">Haber yükleniyor...</p>
+        </div>
+
+        <div id="articleArea" style="display: none;">
+            
+            <div class="article-header">
+                <span class="article-category" id="detCategory">...</span>
+                <h1 class="article-title" id="detTitle">...</h1>
+                <div class="article-meta">
+                    <span><i class="far fa-calendar-alt mr-2"></i><span id="detDate">...</span></span>
+                    <span><i class="fas fa-user-edit mr-2"></i><span id="detAuthor">...</span></span>
+                </div>
+            </div>
+
+            <div class="article-image-wrapper">
+                <img id="detImage" src="" alt="Haber Görseli">
+            </div>
+
+            <div class="article-content" id="detContent">
+                ...
+            </div>
+
+            <div class="article-actions">
+                <button id="btnSaveNews" class="btn btn-outline-primary font-weight-bold">
+                    <i class="far fa-bookmark mr-2"></i><span>Haberi Kaydet</span>
+                </button>
+                <button class="btn btn-outline-secondary font-weight-bold" onclick="$('html, body').animate({scrollTop: $('#commentFormArea').offset().top - 100}, 500);">
+                    <i class="far fa-comment mr-2"></i>Yorum Yaz
+                </button>
+            </div>
+
+            <div class="comments-section mt-5 pt-4 border-top" style="border-top-width: 2px !important; border-color: #eaecf4 !important;">
+                <h4 class="font-weight-bold mb-4 text-dark">Yorumlar (<span id="commentCount">0</span>)</h4>
+                
+                <div id="commentFormArea" style="display:none; background: #f8f9fc; padding: 25px; border-radius: 5px; border: 1px solid #eaecf4; margin-bottom: 30px;">
+                    <h6 class="font-weight-bold mb-3 text-primary"><i class="fas fa-pen mr-2"></i>Düşüncelerinizi Paylaşın</h6>
+                    <div id="commentAlert"></div>
+                    <div class="form-group">
+                        <textarea id="commentText" class="form-control" rows="3" placeholder="Habere dair yorumunuzu buraya yazın..." style="resize: none;"></textarea>
+                    </div>
+                    <button id="btnSubmitComment" class="btn btn-primary font-weight-bold px-4">Yorumu Gönder</button>
+                </div>
+
+                <div id="loginWarningArea" class="alert alert-secondary text-center py-4 mb-4" style="border: 1px dashed #d1d3e2;">
+                    Yorum yapabilmek için lütfen <a href="/Auth/Login" class="font-weight-bold text-primary text-decoration-none">giriş yapın</a> veya <a href="/Auth/Register" class="font-weight-bold text-primary text-decoration-none">kayıt olun</a>.
+                </div>
+
+                <div id="commentsList" class="mb-5">
+                    <div class="text-center text-muted small my-4" id="noCommentText">Bu habere henüz yorum yapılmamış. İlk yorumu siz yapın!</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            
+            var newsId = @ViewBag.NewsId;
+            var apiUrl = "https://localhost:7253/api/News/" + newsId;
+
+           
+            var token = localStorage.getItem("token");
+            var activeUser = "";
+            
+            if (token) {
+                $("#commentFormArea").show();
+                $("#loginWarningArea").hide();
+                try {
+                    var base64Url = token.split('.')[1];
+                    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    var payload = JSON.parse(jsonPayload);
+                    activeUser = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload.unique_name || payload.name || "";
+                } catch (e) {
+                    console.error("Token parçalanamadı.");
+                }
+            } else {
+                $("#commentFormArea").hide();
+                $("#loginWarningArea").show();
+            }
+
+         // HABER ÇEK
+            $.ajax({
+                url: apiUrl,
+                type: "GET",
+                success: function (item) {
+                    $("#loadingArea").hide();
+                    $("#articleArea").fadeIn();
+
+                    var catName = item.category ? item.category.name : "Gündem";
+                    var authorName = item.author && item.author.userName ? item.author.userName : "Haber Mozaik";
+                    var date = new Date(item.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                    var imgUrl = item.imageUrl ? "https://localhost:7253" + item.imageUrl : "https://dummyimage.com/1200x600/4e73df/fff.png&text=Haber+Gorseli";
+
+                    $("#detCategory").text(catName);
+                    $("#detTitle").text(item.title);
+                    $("#detDate").text(date);
+                    $("#detAuthor").text(authorName);
+                    $("#detImage").attr("src", imgUrl);
+                    
+                    var formattedContent = item.content.replace(/\n/g, "<br><br>");
+                    $("#detContent").html(formattedContent);
+                    
+                    document.title = item.title + " - Haber Mozaik";
+                },
+                error: function () {
+                    $("#loadingArea").html('<div class="alert alert-danger">Haber bulunamadı veya silinmiş.</div>');
+                }
+            });
+
+            // YORUM ÇEK
+            function loadComments() {
+                var commentsUrl = "https://localhost:7253/api/Comments/news/" + newsId;
+
+                $.ajax({
+                    url: commentsUrl,
+                    type: "GET",
+                    success: function (data) {
+                        var commentsList = $("#commentsList");
+                        var commentCount = $("#commentCount");
+                        
+                        commentsList.empty(); 
+                        commentCount.text(data.length);
+
+                        if (data.length === 0) {
+                            commentsList.html('<div class="text-center text-muted small my-4" id="noCommentText">Bu habere henüz yorum yapılmamış. İlk yorumu siz yapın!</div>');
+                            return;
+                        }
+
+                        $.each(data, function (index, item) {
+                            var date = new Date(item.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                            
+                            // YORUM KULLANICIYA AİTSE BUTONLARI HAZIRLA
+                            var actionButtons = "";
+                            if (activeUser === item.userName) {
+                                actionButtons = `
+                                    <div class="mt-2 text-right">
+                                        <button class="btn btn-sm btn-outline-info btn-edit-comment py-0 px-2 mr-1" data-id="${item.id}" data-text="${item.content}" style="font-size:0.8rem;"><i class="fas fa-edit"></i> Düzenle</button>
+                                        <button class="btn btn-sm btn-outline-danger btn-delete-comment py-0 px-2" data-id="${item.id}" style="font-size:0.8rem;"><i class="fas fa-trash"></i> Sil</button>
+                                    </div>
+                                `;
+                            }
+                            
+                            var commentHtml = `
+                                <div class="media mb-4 p-3" style="background: #fff; border: 1px solid #eaecf4; border-radius: 5px;">
+                                    <img class="d-flex mr-3 rounded-circle" src="https://dummyimage.com/50x50/4e73df/fff.png&text=${item.userName.charAt(0).toUpperCase()}" alt="">
+                                    <div class="media-body">
+                                        <h6 class="mt-0 font-weight-bold text-dark">${item.userName} <span class="text-muted small ml-2 font-weight-normal">${date}</span></h6>
+                                        <p class="mb-0 text-gray-800" style="font-size: 0.95rem;">${item.content}</p>
+                                        ${actionButtons}
+                                    </div>
+                                </div>
+                            `;
+                            commentsList.append(commentHtml);
+                        });
+                    }
+                });
+            }
+
+            loadComments();
+
+            // YORUM EKLEME İŞLEMİ
+            $("#btnSubmitComment").click(function () {
+                var commentBody = $("#commentText").val().trim();
+                
+                if (commentBody === "") {
+                    $("#commentAlert").html('<div class="alert alert-warning small py-2">Lütfen boş yorum göndermeyin!</div>');
+                    return;
+                }
+
+                var btn = $(this);
+                btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Gönderiliyor...').prop("disabled", true);
+
+                var commentData = {
+                    newsId: newsId,
+                    text: commentBody
+                };
+
+                $.ajax({
+                    url: "https://localhost:7253/api/Comments",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(commentData),
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function () {
+                        $("#commentText").val(""); 
+                        $("#commentAlert").html('<div class="alert alert-success small py-2">Yorumunuz başarıyla gönderildi!</div>');
+                        btn.text('Yorumu Gönder').prop("disabled", false);
+                        
+                        loadComments();
+                    },
+                    error: function () {
+                        $("#commentAlert").html('<div class="alert alert-danger small py-2">Yorum gönderilirken bir hata oluştu.</div>');
+                        btn.text('Yorumu Gönder').prop("disabled", false);
+                    }
+                });
+            });
+
+            // YORUM SİLME İŞLEMİ
+            $(document).on("click", ".btn-delete-comment", function() {
+                var commentId = $(this).data("id");
+                
+                if(confirm("Bu yorumu silmek istediğinize emin misiniz?")) {
+                    $.ajax({
+                        url: "https://localhost:7253/api/Comments/" + commentId,
+                        type: "DELETE",
+                        headers: { "Authorization": "Bearer " + token },
+                        success: function() {
+                            loadComments(); 
+                        },
+                        error: function() {
+                            alert("Silme işlemi başarısız oldu.");
+                        }
+                    });
+                }
+            });
+
+            // YORUM DÜZENLEME İŞLEMİ
+            $(document).on("click", ".btn-edit-comment", function() {
+                var commentId = $(this).data("id");
+                var currentText = $(this).data("text"); 
+                
+                var newText = prompt("Yorumunuzu düzenleyin:", currentText);
+                
+                if(newText !== null && newText.trim() !== "" && newText !== currentText) {
+                    $.ajax({
+                        url: "https://localhost:7253/api/Comments/" + commentId,
+                        type: "PUT",
+                        contentType: "application/json",
+                        data: JSON.stringify({ text: newText }),
+                        headers: { "Authorization": "Bearer " + token },
+                        success: function() {
+                            loadComments(); 
+                        },
+                        error: function() {
+                            alert("Düzenleme işlemi başarısız oldu.");
+                        }
+                    });
+                }
+            });
+
+            // HABERİ KAYDET (SAVED NEWS) 
+            var saveBtn = $("#btnSaveNews");
+
+            if (token) {
+                checkSavedNewsStatus();
+            }
+
+            function checkSavedNewsStatus() {
+                $.ajax({
+                    url: "https://localhost:7253/api/SavedNews/status/" + newsId,
+                    type: "GET",
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function (response) {
+                        updateSaveButton(response.isSaved);
+                    }
+                });
+            }
+
+            saveBtn.click(function () {
+                if (!token) {
+                    alert("Haberi kaydedebilmek için lütfen giriş yapın.");
+                    window.location.href = "/Auth/Login";
+                    return;
+                }
+
+                saveBtn.prop("disabled", true); 
+
+                $.ajax({
+                    url: "https://localhost:7253/api/SavedNews/toggle/" + newsId,
+                    type: "POST",
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function (response) {
+                        updateSaveButton(response.isSaved);
+                        saveBtn.prop("disabled", false);
+                    },
+                    error: function() {
+                        alert("İşlem sırasında bir hata oluştu.");
+                        saveBtn.prop("disabled", false);
+                    }
+                });
+            });
+
+            function updateSaveButton(isSaved) {
+                if (isSaved) {
+                    saveBtn.removeClass("btn-outline-primary").addClass("btn-primary");
+                    saveBtn.find("i").removeClass("far").addClass("fas"); 
+                    saveBtn.find("span").text("Haberi Kaydettin");
+                } else {
+                    saveBtn.removeClass("btn-primary").addClass("btn-outline-primary");
+                    saveBtn.find("i").removeClass("fas").addClass("far"); 
+                    saveBtn.find("span").text("Haberi Kaydet");
+                }
+            }
+
+        });
+    </script>
+}

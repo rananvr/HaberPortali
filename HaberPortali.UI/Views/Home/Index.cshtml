@@ -169,9 +169,8 @@
                                 return;
                             }
 
-                            var apiUrl = "https://localhost:7253/api/Categories"; // KENDİ PORTUNA GÖRE DÜZENLEMEYİ UNUTMA!
+                            var apiUrl = "https://localhost:7253/api/Categories"; 
 
-                            // Ekranda şık uyarı gösterme fonksiyonu
                             function showMessage(message, type) {
                                 var alertHtml = `
                                     <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
@@ -236,7 +235,7 @@
                                     success: function () {
                                         showMessage("Kategori başarıyla eklendi!", "success");
                                         $("#newCategoryName").val("");
-                                        $("#btnGetCategories").click(); // Listeyi güncelle
+                                        $("#btnGetCategories").click();
                                     },
                                     error: function () {
                                         showMessage("Kategori eklenirken bir hata oluştu.", "danger");
@@ -255,7 +254,7 @@
                                         headers: { "Authorization": "Bearer " + userToken },
                                         success: function () {
                                             showMessage("Kategori başarıyla silindi!", "success");
-                                            $("#btnGetCategories").click(); // Listeyi güncelle
+                                            $("#btnGetCategories").click();
                                         },
                                         error: function () {
                                             showMessage("Silme işlemi başarısız oldu.", "danger");
@@ -291,9 +290,9 @@
                                     headers: { "Authorization": "Bearer " + userToken },
                                     data: JSON.stringify({ Id: parseInt(id), Name: newName }),
                                     success: function () {
-                                        $("#editCategoryModal").modal("hide"); // Modalı kapat
+                                        $("#editCategoryModal").modal("hide"); 
                                         showMessage("Kategori başarıyla güncellendi!", "success");
-                                        $("#btnGetCategories").click(); // Listeyi güncelle
+                                        $("#btnGetCategories").click(); 
                                     },
                                     error: function () {
                                         showMessage("Güncelleme sırasında bir hata oluştu.", "danger");
@@ -301,7 +300,6 @@
                                 });
                             });
 
-                            // Çıkış Yap
                             $("#btnLogout").click(function () {
                                 localStorage.removeItem("token");
                                 window.location.href = "/Auth/Login";

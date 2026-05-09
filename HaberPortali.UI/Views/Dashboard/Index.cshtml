@@ -170,7 +170,6 @@
                             var userToken = localStorage.getItem("token");
                             if (!userToken) { window.location.href = "/Auth/Login"; return; }
 
-                            // API URL (Portunu Kendi Projene Göre Kontrol Et)
                             var apiStatsUrl = "https://localhost:7253/api/Dashboard/stats";
 
                             function loadStats() {
@@ -179,7 +178,6 @@
                                     type: "GET",
                                     headers: { "Authorization": "Bearer " + userToken },
                                     success: function (data) {
-                                        // Gelen JSON verisini kartların içine yazdırıyoruz
                                         $("#statTotalNews").text(data.totalNews);
                                         $("#statTotalCategories").text(data.totalCategories);
                                         $("#statTotalUsers").text(data.totalUsers);
@@ -196,7 +194,6 @@
                                 window.location.href = "/Auth/Login";
                             });
 
-                            // Sayfa açıldığında istatistikleri getir
                             loadStats();
                         });
                 </script>

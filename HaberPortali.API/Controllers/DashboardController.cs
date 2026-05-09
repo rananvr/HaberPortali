@@ -8,12 +8,11 @@ namespace HaberPortali.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Sadece giriş yapmış yöneticiler istatistikleri görebilir
+    [Authorize] 
     public class DashboardController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        // Bütün tabloların sayısını tek seferde çekmek için direkt DbContext'i kullanıyoruz
         public DashboardController(ApplicationDbContext context)
         {
             _context = context;
@@ -27,7 +26,7 @@ namespace HaberPortali.API.Controllers
                 totalNews = await _context.News.CountAsync(),
                 totalCategories = await _context.Categories.CountAsync(),
                 totalUsers = await _context.Users.CountAsync(),
-                pendingComments = await _context.Comments.CountAsync(c => !c.IsApproved) // Sadece onay bekleyenler
+                pendingComments = await _context.Comments.CountAsync(c => !c.IsApproved) 
             };
 
             return Ok(stats);

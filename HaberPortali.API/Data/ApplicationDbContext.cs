@@ -11,7 +11,6 @@ namespace HaberPortali.API.Data
         {
         }
 
-       // veri tabanı tabloları
         public DbSet<News> News { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }
@@ -22,7 +21,7 @@ namespace HaberPortali.API.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder); // Identity'nin kendi ayarlarını ezmemek için bu şart!
+            base.OnModelCreating(builder); 
 
             
             builder.Entity<Comment>()

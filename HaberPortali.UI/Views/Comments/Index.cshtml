@@ -141,7 +141,6 @@
                             var userToken = localStorage.getItem("token");
                             if (!userToken) { window.location.href = "/Auth/Login"; return; }
 
-                            // DİKKAT: PORTUNU KENDİ PROJENE GÖRE GÜNCELLE!
                             var apiCommentsUrl = "https://localhost:7253/api/Comments";
 
                             function showMessage(message, type) {
@@ -169,11 +168,9 @@
                                         }
 
                                         $.each(data, function (index, item) {
-                                            // Kullanıcı veya haber silinmişse patlamasın diye önlem:
                                             var userName = item.user && item.user.userName ? item.user.userName : "Bilinmeyen Kullanıcı";
                                             var newsTitle = item.news && item.news.title ? item.news.title : "<span class='text-danger'>Haber Silinmiş</span>";
                             
-                                            // Duruma göre Rozet (Badge) rengi ve Buton belirleme
                                             var statusBadge = item.isApproved
                                                 ? '<span class="badge badge-success">Onaylı</span>'
                                                 : '<span class="badge badge-secondary">Gizli</span>';
@@ -213,7 +210,7 @@
                                     headers: { "Authorization": "Bearer " + userToken },
                                     success: function (response) {
                                         showMessage(response.message, "success");
-                                        loadComments(); // Tabloyu yenile
+                                        loadComments(); 
                                     },
                                     error: function () {
                                         showMessage("İşlem sırasında bir hata oluştu.", "danger");
@@ -238,18 +235,15 @@
                                 }
                             });
 
-                            // Yenile Butonu
                             $("#btnRefreshComments").click(function() {
                                 loadComments();
                             });
 
-                            // Çıkış Yap
                             $("#btnLogout").click(function () {
                                 localStorage.removeItem("token");
                                 window.location.href = "/Auth/Login";
                             });
 
-                            // Sayfa açılışında verileri getir
                             loadComments();
                         });
                 </script>

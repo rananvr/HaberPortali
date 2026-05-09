@@ -1,0 +1,225 @@
+﻿@{
+    Layout = "~/Views/Shared/_WebLayout.cshtml";
+    ViewData["Title"] = "Profilim";
+}
+
+<style>
+    .profile-header { background: #fff; padding: 40px 0; border-bottom: 1px solid #eaecf4; margin-bottom: 40px; }
+    .user-avatar { width: 100px; height: 100px; background: #4e73df; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 800; border-radius: 50%; margin: 0 auto 20px; }
+    
+    .nav-pills .nav-link { color: #5a5c69; font-weight: bold; border-radius: 5px; margin-bottom: 10px; }
+    .nav-pills .nav-link.active { background-color: #4e73df; color: #fff; }
+    
+    .saved-card { display: flex; background: #fff; border: 1px solid #eaecf4; border-radius: 8px; overflow: hidden; margin-bottom: 20px; transition: transform 0.3s; }
+    .saved-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .saved-img { width: 200px; height: 130px; object-fit: cover; }
+    .saved-body { padding: 20px; flex: 1; position: relative; }
+    .saved-cat { font-size: 0.75rem; font-weight: 800; color: #4e73df; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .saved-title { font-weight: 700; font-size: 1.1rem; color: #111; text-decoration: none; }
+    .saved-date { font-size: 0.8rem; color: #858796; margin-top: 10px; display: block; }
+    .btn-remove { position: absolute; right: 20px; top: 20px; color: #e74a3b; cursor: pointer; transition: 0.3s; }
+</style>
+
+<div class="profile-header text-center">
+    <div class="container">
+        <div class="user-avatar" id="profileInitial">R</div>
+        <h2 class="font-weight-bold mb-1" id="profileName">Yükleniyor...</h2>
+        <p class="text-muted" id="profileRole">Okur Hesabı</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="tab-saved-news" data-toggle="pill" href="#content-saved" role="tab"><i class="fas fa-bookmark mr-2"></i> Kaydettiklerim</a>
+                <a class="nav-link" id="tab-edit-profile" data-toggle="pill" href="#content-profile" role="tab"><i class="fas fa-user-edit mr-2"></i> Profil Ayarları</a>
+                <a class="nav-link" id="tab-change-password" data-toggle="pill" href="#content-password" role="tab"><i class="fas fa-key mr-2"></i> Şifre Değiştir</a>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content bg-white p-4 border rounded" id="v-pills-tabContent">
+                
+                <div class="tab-pane fade show active" id="content-saved" role="tabpanel">
+                    <h4 class="font-weight-bold border-bottom pb-2 mb-4">Kaydettiğim Haberler</h4>
+                    <div id="savedNewsList">
+                        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="content-profile" role="tabpanel">
+                    <h4 class="font-weight-bold border-bottom pb-2 mb-4">Profil Ayarları</h4>
+                    <div id="profileAlert"></div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Kullanıcı Adı</label>
+                        <input type="text" id="editUserName" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">E-Posta Adresi</label>
+                        <input type="email" id="editEmail" class="form-control" />
+                    </div>
+                    <button id="btnUpdateProfile" class="btn btn-primary font-weight-bold mt-2 px-4">Bilgileri Güncelle</button>
+                    <p class="text-muted small mt-3">*Kullanıcı adınızı değiştirdiğinizde güvenliğiniz için sistemden çıkış yapılabilir.</p>
+                </div>
+
+                <div class="tab-pane fade" id="content-password" role="tabpanel">
+                    <h4 class="font-weight-bold border-bottom pb-2 mb-4">Şifre Değiştir</h4>
+                    <div id="passwordAlert"></div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mevcut Şifreniz</label>
+                        <input type="password" id="oldPassword" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Yeni Şifreniz</label>
+                        <input type="password" id="newPassword" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Yeni Şifreniz (Tekrar)</label>
+                        <input type="password" id="newPasswordConfirm" class="form-control" />
+                    </div>
+                    <button id="btnChangePassword" class="btn btn-danger font-weight-bold mt-2 px-4">Şifreyi Güncelle</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var token = localStorage.getItem("token");
+            if (!token) { window.location.href = "/Auth/Login"; return; }
+
+            // Kullanıcı bilgilerini token'dan çek
+            var base64Url = token.split('.')[1];
+            var payload = JSON.parse(decodeURIComponent(window.atob(base64Url).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')));
+            
+            var userName = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload.unique_name || "Okur";
+            var userEmail = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || payload.email || "";
+            
+            $("#profileName").text(userName);
+            $("#profileInitial").text(userName.charAt(0).toUpperCase());
+            
+            // Profil formunun içini doldur
+            $("#editUserName").val(userName);
+            $("#editEmail").val(userEmail);
+
+            // kaydettikleri çekme işlemi
+            function loadSavedNews() {
+                $.ajax({
+                    url: "https://localhost:7253/api/SavedNews/my-list",
+                    type: "GET",
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function (data) {
+                        var list = $("#savedNewsList");
+                        list.empty();
+
+                        if (data.length === 0) {
+                            list.html('<div class="alert alert-light text-center py-5 border">Henüz hiç haber kaydetmediniz.</div>');
+                            return;
+                        }
+
+                        $.each(data, function (index, item) {
+                            var img = item.imageUrl ? "https://localhost:7253" + item.imageUrl : "https://dummyimage.com/200x130/4e73df/fff.png&text=Haber";
+                            var date = new Date(item.savedAt).toLocaleDateString('tr-TR');
+
+                            var html = `
+                                <div class="saved-card">
+                                    <img src="${img}" class="saved-img">
+                                    <div class="saved-body">
+                                        <span class="saved-cat">${item.categoryName}</span>
+                                        <a href="/Web/Detail/${item.id}" class="saved-title">${item.title}</a>
+                                        <span class="saved-date"><i class="far fa-calendar-alt mr-1"></i> ${date} tarihinde kaydedildi</span>
+                                        <i class="fas fa-trash btn-remove" onclick="removeSaved(${item.id})" title="Kaydı Sil"></i>
+                                    </div>
+                                </div>
+                            `;
+                            list.append(html);
+                        });
+                    }
+                });
+            }
+            loadSavedNews();
+
+            // Kaydı Silme İşlemi 
+            window.removeSaved = function(newsId) {
+                if(confirm("Bu haberi listenizden çıkarmak istediğinize emin misiniz?")) {
+                    $.ajax({
+                        url: "https://localhost:7253/api/SavedNews/toggle/" + newsId,
+                        type: "POST",
+                        headers: { "Authorization": "Bearer " + token },
+                        success: function () { loadSavedNews(); }
+                    });
+                }
+            }
+
+            // Profil Güncelleme İşlemi
+            $("#btnUpdateProfile").click(function () {
+                var newUserName = $("#editUserName").val().trim();
+                var newEmail = $("#editEmail").val().trim();
+
+                if (!newUserName || !newEmail) {
+                    $("#profileAlert").html('<div class="alert alert-warning">Lütfen tüm alanları doldurun.</div>');
+                    return;
+                }
+
+                $.ajax({
+                    url: "https://localhost:7253/api/Auth/update-profile", 
+                    type: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({ userName: newUserName, email: newEmail }),
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function (res) {
+                        $("#profileAlert").html('<div class="alert alert-success">' + res.message + '</div>');
+                        setTimeout(function() {
+                            localStorage.removeItem("token");
+                            window.location.href = "/Auth/Login";
+                        }, 2500);
+                    },
+                    error: function (xhr) {
+                        var errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Güncelleme başarısız.";
+                        $("#profileAlert").html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                    }
+                });
+            });
+
+            // Şifre Değiştirme İşlemi
+            $("#btnChangePassword").click(function () {
+                var oldPass = $("#oldPassword").val();
+                var newPass = $("#newPassword").val();
+                var newPassConfirm = $("#newPasswordConfirm").val();
+
+                if (!oldPass || !newPass || !newPassConfirm) {
+                    $("#passwordAlert").html('<div class="alert alert-warning">Lütfen tüm şifre alanlarını doldurun.</div>');
+                    return;
+                }
+
+                if (newPass !== newPassConfirm) {
+                    $("#passwordAlert").html('<div class="alert alert-danger">Yeni şifreler birbiriyle uyuşmuyor!</div>');
+                    return;
+                }
+
+                $.ajax({
+                    url: "https://localhost:7253/api/Auth/change-password", 
+                    type: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }),
+                    headers: { "Authorization": "Bearer " + token },
+                    success: function (res) {
+                        $("#passwordAlert").html('<div class="alert alert-success">' + res.message + '</div>');
+                        $("#oldPassword").val(""); $("#newPassword").val(""); $("#newPasswordConfirm").val("");
+                    },
+                    error: function (xhr) {
+                        var errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Şifre değiştirilemedi.";
+                        $("#passwordAlert").html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                    }
+                });
+            });
+
+        });
+    </script>
+}
